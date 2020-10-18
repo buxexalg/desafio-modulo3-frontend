@@ -1,0 +1,53 @@
+.jogos {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	max-width: 35%;
+	min-width: 350px;
+}
+
+.headerJogos {
+	background-color: rgb(138, 185, 157);
+	color: black;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0 1em;
+	text-align: center;
+	box-shadow: 7px 8px 10px 0px rgba(0, 0, 0, 0.1);
+}
+
+.headerJogos h2 {
+	margin: 0.5em 0;
+}
+
+.headerJogos img {
+	cursor: pointer;
+}
+
+.conteudoJogos {
+	background-color: white;
+	display: flex;
+	padding: 0.5em;
+	justify-content: center;
+	box-shadow: 7px 8px 10px 0px rgba(0, 0, 0, 0.1);
+}
+
+.listaJogo td:nth-child(1) {
+	text-align: right;
+}
+
+.listaJogo td:nth-child(2),
+.listaJogo td:nth-child(4) {
+	font-size: 1.5em;
+	text-align: center;
+	padding: 0 0.5em;
+}
+
+.listaJogo td:nth-child(3) {
+	padding: 0.7em;
+}
+
+.tabelaJogos tr {
+	padding: 1em 0;
+}
