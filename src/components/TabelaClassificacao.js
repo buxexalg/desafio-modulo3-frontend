@@ -21,11 +21,55 @@ export default function TabelaClassificacao() {
 		'SG',
 	];
 
-	function ordenaTabela(array) {
-		const index = tituloHeader.indexOf(filtro);
+	const alteraNomeFiltro = (nomeFiltro) => {
+		let nomeObjeto = '';
 
-		return tituloHeader.indexOf(filtro);
-	}
+		switch (nomeFiltro) {
+			case 'Posição':
+				nomeObjeto = 'id';
+				break;
+			case 'Time':
+				nomeObjeto = 'nome';
+				break;
+			case 'PTS':
+				nomeObjeto = 'pontos';
+				break;
+			case 'V':
+				nomeObjeto = 'vitorias';
+				break;
+			case 'E':
+				nomeObjeto = 'empates';
+				break;
+			case 'D':
+				nomeObjeto = 'derrotas';
+				break;
+			case 'GF':
+				nomeObjeto = 'golsFeitos';
+				break;
+			case 'GS':
+				nomeObjeto = 'golsSofridos';
+				break;
+			case 'SG':
+				nomeObjeto = 'saldoGols';
+				break;
+		}
+		return nomeObjeto;
+	};
+
+	const ordenaColuna = (filtro) => {
+		const tabelaOrdenada = [...classificacao];
+
+		tabelaOrdenada.sort((a, b) =>
+			filtro === 'nome'
+				? a[filtro].localeCompare(b[filtro])
+				: a[filtro] > b[filtro]
+				? 1
+				: -1
+		);
+
+		console.log(tabelaOrdenada);
+		setClassificacao(tabelaOrdenada);
+	};
 
 	React.useEffect(() => {
 		fetch(
@@ -39,68 +83,76 @@ export default function TabelaClassificacao() {
 				return response.json();
 			})
 			.then(({ dados }) => {
-				console.log(dados)
-				ordenaTabela(dados);
+				dados.forEach((elemento, index) => {
+					elemento.id = index + 1;
+					elemento.saldoGols =
+						elemento.golsFeitos - elemento.golsSofridos;
+				});
 				setClassificacao(dados);
 			})
 			.catch((err) => {
 				console.error(err);
 			});
-	}, [filtroAsc]);
+	});
 
 	return (
 		<div className="classificacao">
-			<table>
-				<thead>
-					<tr>
-						{tituloHeader.map((elemento, index) => (
-							<td key={index}>
-								{elemento}
-								<img
-									src={iconeFiltro}
-									alt="Ordenar coluna"
-									onClick={(event) => {
-										setFiltro(event.target.previousSibling.data)
-										if (!filtroAsc) {
-											setIconeFiltro(
-												'https://systemuicons.com/images/icons/arrow_up.svg'
+			{classificacao.length === 0 ? (
+				<div className="carregando">Carregando...</div>
+			) : (
+				<table>
+					<thead>
+						<tr>
+							{tituloHeader.map((elemento, index) => (
+								<td key={index}>
+									{elemento}
+									<img
+										src={iconeFiltro}
+										alt="Ordenar coluna"
+										onClick={() => {
+											setFiltro(
+												alteraNomeFiltro(elemento)
 											);
-											setFiltroAsc(!filtroAsc);
-										} else {
-											setIconeFiltro(
-												'https://systemuicons.com/images/icons/arrow_down.svg'
-											);
-											setFiltroAsc(!filtroAsc);
-										}
-									}}
-								/>
-							</td>
-						))}
-					</tr>
-				</thead>
-				<tbody>
-					{classificacao === null ? (
-						<div>Carregando...</div>
-					) : (
-						classificacao.map((elemento, index) => (
-							<tr key={index}>
-								<td>{index + 1}</td>
-								<td>{elemento.nome}</td>
-								<td>{elemento.pontos}</td>
-								<td>{elemento.vitorias}</td>
-								<td>{elemento.empates}</td>
-								<td>{elemento.derrotas}</td>
-								<td>{elemento.golsFeitos}</td>
-								<td>{elemento.golsSofridos}</td>
-								<td>
-									{elemento.golsFeitos -
-										elemento.golsSofridos}
+											ordenaColuna(filtro);
+										}}
+									/>
 								</td>
-							</tr>
-						))
-					)}
-				</tbody>
-			</table>
+							))}
+						</tr>
+					</thead>
+					<tbody>
+						{classificacao.map(
+							(
+								{
+									nome,
+									pontos,
+									vitorias,
+									empates,
+									derrotas,
+									golsFeitos,
+									golsSofridos,
+									saldoGols,
+								},
+								index
+							) => {
+								return (
+									<tr key={index}>
+										<td>{index + 1}</td>
+										<td>{nome}</td>
+										<td>{pontos}</td>
+										<td>{vitorias}</td>
+										<td>{empates}</td>
+										<td>{derrotas}</td>
+										<td>{golsFeitos}</td>
+										<td>{golsSofridos}</td>
+										<td>{saldoGols}</td>
+									</tr>
+								);
+							}
+						)}
+					</tbody>
+				</table>
+			)}
 		</div>
 	);
 }
