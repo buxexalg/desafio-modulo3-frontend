@@ -48,6 +48,10 @@
 	padding: 0.7em;
 }
 
+.listaJogo td:nth-child(5) {
+	text-align: left;
+}
+
 .tabelaJogos tr {
 	padding: 1em 0;
 }

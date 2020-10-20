@@ -40,3 +40,12 @@ tbody td {
 	text-align: right;
 	padding: 0.25em 0.5em;
 }
+
+.carregando {
+	text-align: center;
+	background-color: white;
+	display: flex;
+	flex-grow: 1;
+	justify-content: center;
+	align-items: center;
+}
