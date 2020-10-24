@@ -1,14 +1,13 @@
 import React from 'react';
 
 import '../styles/tabelaClassificacao.css';
+import { fazerRequisicaoComBody } from '../utils/requisicoes';
 
-export default function TabelaClassificacao() {
-	const [classificacao, setClassificacao] = React.useState([]);
-	const [iconeFiltro, setIconeFiltro] = React.useState(
-		'https://systemuicons.com/images/icons/sort.svg'
-	);
+export default function TabelaClassificacao(props) {
+	const { classificacao, setClassificacao } = props;
 	const [filtro, setFiltro] = React.useState('Posição');
-	const [filtroAsc, setFiltroAsc] = React.useState(false);
+	const [filtroAsc, setFiltroAsc] = React.useState(true);
+
 	const tituloHeader = [
 		'Posição',
 		'Time',
@@ -56,44 +55,36 @@ export default function TabelaClassificacao() {
 		return nomeObjeto;
 	};
 
-	const ordenaColuna = (filtro) => {
-		const tabelaOrdenada = [...classificacao];
-
-		tabelaOrdenada.sort((a, b) =>
-			filtro === 'nome'
-				? a[filtro].localeCompare(b[filtro])
-				: a[filtro] > b[filtro]
-				? 1
-				: -1
-		);
-
-		console.log(tabelaOrdenada);
-		setClassificacao(tabelaOrdenada);
-	};
-
 	React.useEffect(() => {
-		fetch(
-			`https://desafio-3-back-cubos-academy.herokuapp.com/classificacao`,
-			{
-				method: 'GET',
-				headers: {},
-			}
-		)
+		fazerRequisicaoComBody(`http://localhost:8081/classificacao`, 'GET')
 			.then((response) => {
 				return response.json();
 			})
-			.then(({ dados }) => {
-				dados.forEach((elemento, index) => {
+			.then((dados) => {
+				const dadosClassificacao = dados.dados;
+				dadosClassificacao.forEach((elemento, index) => {
 					elemento.id = index + 1;
 					elemento.saldoGols =
 						elemento.golsFeitos - elemento.golsSofridos;
 				});
-				setClassificacao(dados);
+				setClassificacao(dadosClassificacao);
 			})
 			.catch((err) => {
 				console.error(err);
 			});
-	});
+	}, []);
+	
+		const filtroObjeto = alteraNomeFiltro(filtro);
+
+		classificacao.sort((a, b) => {
+			if (filtroObjeto === 'nome') {
+				return a['nome'].localeCompare(b['nome']);
+			} else if (filtroObjeto !== 'nome') {
+				return b[filtroObjeto] - a[filtroObjeto];
+			}
+		});
+
+		filtroAsc ? setClassificacao(classificacao.reverse()) : setClassificacao(classificacao)
 
 	return (
 		<div className="classificacao">
@@ -106,16 +97,29 @@ export default function TabelaClassificacao() {
 							{tituloHeader.map((elemento, index) => (
 								<td key={index}>
 									{elemento}
-									<img
-										src={iconeFiltro}
-										alt="Ordenar coluna"
-										onClick={() => {
-											setFiltro(
-												alteraNomeFiltro(elemento)
-											);
-											ordenaColuna(filtro);
-										}}
-									/>
+									{elemento === filtro ? (
+										<img
+											src={
+												filtroAsc
+													? 'https://systemuicons.com/images/icons/arrow_down.svg'
+													: 'https://systemuicons.com/images/icons/arrow_up.svg'
+											}
+											alt="Ordenar coluna"
+											onClick={() => {
+												setFiltroAsc(!filtroAsc);
+												setFiltro(elemento);
+											}}
+										/>
+									) : (
+										<img
+											src="https://systemuicons.com/images/icons/sort.svg"
+											alt="Ordenar coluna"
+											onClick={() => {
+												setFiltroAsc(false);
+												setFiltro(elemento);
+											}}
+										/>
+									)}
 								</td>
 							))}
 						</tr>
@@ -124,6 +128,7 @@ export default function TabelaClassificacao() {
 						{classificacao.map(
 							(
 								{
+									id,
 									nome,
 									pontos,
 									vitorias,
@@ -137,7 +142,7 @@ export default function TabelaClassificacao() {
 							) => {
 								return (
 									<tr key={index}>
-										<td>{index + 1}</td>
+										<td>{id}</td>
 										<td>{nome}</td>
 										<td>{pontos}</td>
 										<td>{vitorias}</td>
